@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: livros-service
+spec:
+  selector:
+    matchLabels:
+      app: livros-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: livros-service
+    spec:
+      containers:
+        - name: livros-service
+          image: livros-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: EUREKA_SERVER_URI
+              value: "http://eureka-server:8761/eureka/"
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:mysql://mysql:3306/livrosdb"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: "usuario"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: "senha"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: livros-service
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8080
+      nodePort: 31001
+  selector:
+    app: livros-service
